@@ -7,8 +7,8 @@ module direction_display(
     );
     // direction status led 
     // [0,0] no led
-    // [0,1] right led (led14)
-    // [1,0] left led (led15)
+    // [0,1] right led (led14) up
+    // [1,0] left led (led15) down
     // [1,1] both led
     // 5 Hz blink rate using clock divider module
     wire clk_5hz;

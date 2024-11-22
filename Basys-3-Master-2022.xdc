@@ -68,6 +68,9 @@ set_property -dict { PACKAGE_PIN E19   IOSTANDARD LVCMOS33 } [get_ports {lift_do
 set_property -dict { PACKAGE_PIN U19   IOSTANDARD LVCMOS33 } [get_ports {lift_door[2]}]
 set_property -dict { PACKAGE_PIN V19   IOSTANDARD LVCMOS33 } [get_ports {lift_door[3]}]
 
+set_property -dict { PACKAGE_PIN P1    IOSTANDARD LVCMOS33 } [get_ports {direction_led[0]}]
+set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {direction_led[1]}]
+
 ## Door Sensor
 set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports {door_sensor[0]}]
 set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports {door_sensor[1]}]
@@ -81,12 +84,12 @@ set_property -dict { PACKAGE_PIN N1   IOSTANDARD LVCMOS33 } [get_ports {led_btn_
 set_property -dict { PACKAGE_PIN M1   IOSTANDARD LVCMOS33 } [get_ports {led_btn_door[1]}]
 
 # destination selection buttons panel PMOD JA
-set_property -dict { PACKAGE_PIN H1   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[0]}]
-set_property -dict { PACKAGE_PIN K2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[1]}]
-set_property -dict { PACKAGE_PIN H2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[2]}]
-set_property -dict { PACKAGE_PIN G2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[0]}]
-set_property -dict { PACKAGE_PIN J2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[1]}]
-set_property -dict { PACKAGE_PIN L2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[2]}]
+set_property -dict { PACKAGE_PIN H1   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[1]}]
+set_property -dict { PACKAGE_PIN K2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[2]}]
+set_property -dict { PACKAGE_PIN H2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[3]}]
+set_property -dict { PACKAGE_PIN G2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[1]}]
+set_property -dict { PACKAGE_PIN J2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[2]}]
+set_property -dict { PACKAGE_PIN L2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[3]}]
 
 # call buttons panel PMOD JB
 # up at 1st and 2nd floor, down at 2th and 3st floor
