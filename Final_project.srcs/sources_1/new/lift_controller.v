@@ -95,6 +95,57 @@ module lift_controller (
         end
     end
 
-    
+    // Combinational logic for the next state
+    always @(*) begin
+        // Default values
+        next_state = current_state;
+
+        case (current_state)
+            IDLE: begin
+                if (btn_call_up_floor[current_floor] || btn_call_down_floor[current_floor] || btn_select_floor[current_floor]) begin
+                    // Determine direction based on the requested floor
+                    if (btn_call_up_floor > current_floor || btn_select_floor > current_floor) begin
+                        direction = 2'b01; // Move up
+                        next_state = MOVING_UP;
+                    end else if (btn_call_down_floor < current_floor || btn_select_floor < current_floor) begin
+                        direction = 2'b10; // Move down
+                        next_state = MOVING_DOWN;
+                    end
+                end
+            end
+
+            MOVING_UP: begin
+                if (current_floor < 3) begin
+                    current_floor = current_floor + 1;
+                end
+                if (btn_select_floor[current_floor] || btn_call_up_floor[current_floor]) begin
+                    next_state = DOOR_OPENING;
+                end
+            end
+
+            MOVING_DOWN: begin
+                if (current_floor > 1) begin
+                    current_floor = current_floor - 1;
+                end
+                if (btn_select_floor[current_floor] || btn_call_down_floor[current_floor]) begin
+                    next_state = DOOR_OPENING;
+                end
+            end
+
+            DOOR_OPENING: begin
+                lift_door = 4'b1111; // Open door
+                if (door_sensor == 2'b11) begin // Door is fully open
+                    next_state = DOOR_CLOSING;
+                end
+            end
+
+            DOOR_CLOSING: begin
+                lift_door = 4'b0000; // Close door
+                if (door_sensor == 2'b00) begin // Door is fully closed
+                    next_state = IDLE;
+                end
+            end
+        endcase
+    end
 
 endmodule
