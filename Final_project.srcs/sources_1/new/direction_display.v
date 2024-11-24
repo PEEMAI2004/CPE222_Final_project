@@ -1,8 +1,7 @@
-
 module direction_display(
-    input clk,
-    input reset,
-    input [1:0] direction,
+    input wire clk,
+    input wire reset,
+    input wire [1:0] direction,
     output reg [1:0] led
     );
     // direction status led 
