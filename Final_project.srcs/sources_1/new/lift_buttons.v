@@ -1,5 +1,6 @@
 `timescale 1ns / 1ps
 module button (
+    input wire reset,
     input wire button_in,
     input wire button_led_off,
     output wire button_out,
@@ -15,7 +16,7 @@ module button (
             button_led_hold = 1'b1;
         end 
         // If led off is high, turn off the LED
-        if (button_led_off == 1'b1) begin
+        if (button_led_off == 1'b1 || reset == 1'b1) begin
             button_led_hold = 1'b0;
         end
         button_led = button_led_hold;

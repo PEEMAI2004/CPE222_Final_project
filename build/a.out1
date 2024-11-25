@@ -1,13 +1,13 @@
 **** module/scope: button
      Flip-Flops   : 0
-     Logic Gates  : 8
+     Logic Gates  : 10
      MUX[2]: 1 slices
      LPM[40]: 1 unaccounted
      LOG[13]: 1 unaccounted
      LOG[14]: 1 unaccounted
 **** TOTALS
      Flip-Flops   : 0
-     Logic Gates  : 8
+     Logic Gates  : 10
      MUX[2]: 1 slices
      LPM[40]: 1 unaccounted
      LOG[13]: 1 unaccounted

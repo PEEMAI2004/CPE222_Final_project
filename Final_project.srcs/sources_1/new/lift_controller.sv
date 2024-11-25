@@ -11,22 +11,36 @@ module lift_controller (
     output [3:0] anode,
     output [3:0] lift_door
 );
-// store values for state machine
+
+// Define states
+typedef enum logic [3:0] {
+    IDLE = 4'b0000,
+    MOVING_UP = 4'b0001,
+    MOVING_DOWN = 4'b0010,
+    DOOR_OPEN = 4'b0011,
+    DOOR_CLOSED = 4'b0100
+    // Add other states as needed
+} state_t;
+
+state_t current_state, next_state;
+
+// Store values for state machine
 reg [3:0] current_floor;
 reg [1:0] lift_stage;
 reg [1:0] direction;
-// signal form door
+// Signal form door
 wire door_status;
 wire [1:0] door_signal;
-// signal from panel button
+// Signal from panel button
 wire [1:0] btn_door_signal, btn_call_up_floor_signal, btn_call_down_floor_signal;
 wire [3:1] btn_select_floor_signal;
-// signal to panel led to turn off
+// Signal to panel led to turn off
 reg [1:0] led_btn_door_off, led_btn_call_up_floor_off, led_btn_call_down_floor_off;
 reg [3:1] led_btn_select_floor_off;
 
-// init modules
+// Init modules
 lift_button_panel panels1(
+    .reset(reset),
     // Button inputs
     .btn_door(btn_door),
     .btn_call_up_floor(btn_call_up_floor),
@@ -63,7 +77,7 @@ lift_door door1(
 
 seven_seg_decoder decoder1(
     .value(current_floor),   
-    .seg(led_floor)
+    .seg(seg)
 );
 
 assign anode = 4'b1110;
@@ -71,8 +85,28 @@ assign anode = 4'b1110;
 direction_display direction1(
     .clk(clk),
     .reset(reset),
-    .direction(),
-    .led(led_direction)
+    .direction(direction),
+    .led(direction_led)
 );
+
+// Initialize state
+initial begin
+    current_state = IDLE;
+    current_floor = 4'b0001;
+    lift_stage = 2'b00;
+    direction = 2'b00;
+end
+
+// State transition logic
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        current_state <= IDLE;
+        current_floor <= 4'b0001;
+        lift_stage <= 2'b00;
+        direction <= 2'b00;
+    end else begin
+        current_state <= next_state;
+    end
+end
 
 endmodule
