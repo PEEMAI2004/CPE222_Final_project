@@ -109,4 +109,45 @@ always @(posedge clk or posedge reset) begin
     end
 end
 
+// Next state logic
+always @(*) begin
+    // Default next state
+    next_state = current_state;
+
+    case (current_state)
+        IDLE: begin
+            if (btn_call_up_floor_signal || btn_call_down_floor_signal || btn_select_floor_signal) begin
+                next_state = (direction == 2'b01) ? MOVING_UP : MOVING_DOWN;
+            end
+        end
+        MOVING_UP: begin
+            if (current_floor < 4'b0011) begin // top floor is 3rd 
+                current_floor = current_floor + 1;
+            end
+            if (btn_door_signal) begin
+                next_state = DOOR_OPEN;
+            end
+        end
+        MOVING_DOWN: begin
+            if (current_floor > 4'b0001) begin // buttom floor is 1st
+                current_floor = current_floor - 1;
+            end
+            if (btn_door_signal) begin
+                next_state = DOOR_OPEN;
+            end
+        end
+        DOOR_OPEN: begin
+            if (door_sensor == 2'b01) begin
+                next_state = DOOR_CLOSED;
+            end
+        end
+        DOOR_CLOSED: begin
+            if (door_sensor == 2'b10) begin
+                next_state = IDLE;
+            end
+        end
+        // Add other states and transitions as needed
+    endcase
+end
+
 endmodule
