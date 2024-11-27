@@ -28,23 +28,27 @@ create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk
 
 
 ## LEDs
-#set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports {led[0]}]
-#set_property -dict { PACKAGE_PIN E19   IOSTANDARD LVCMOS33 } [get_ports {led[1]}]
-#set_property -dict { PACKAGE_PIN U19   IOSTANDARD LVCMOS33 } [get_ports {led[2]}]
-#set_property -dict { PACKAGE_PIN V19   IOSTANDARD LVCMOS33 } [get_ports {led[3]}]
+#set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports {led[0]}]  // now used for door
+#set_property -dict { PACKAGE_PIN E19   IOSTANDARD LVCMOS33 } [get_ports {led[1]}]  // now used for door
+#set_property -dict { PACKAGE_PIN U19   IOSTANDARD LVCMOS33 } [get_ports {led[2]}]  // now used for door
+#set_property -dict { PACKAGE_PIN V19   IOSTANDARD LVCMOS33 } [get_ports {led[3]}]  // now used for door
 #set_property -dict { PACKAGE_PIN W18   IOSTANDARD LVCMOS33 } [get_ports {led[4]}]
-#set_property -dict { PACKAGE_PIN U15   IOSTANDARD LVCMOS33 } [get_ports {led[5]}]
-#set_property -dict { PACKAGE_PIN U14   IOSTANDARD LVCMOS33 } [get_ports {led[6]}]
-#set_property -dict { PACKAGE_PIN V14   IOSTANDARD LVCMOS33 } [get_ports {led[7]}]
+#set_property -dict { PACKAGE_PIN U15   IOSTANDARD LVCMOS33 } [get_ports {led[5]}]  // now used for show 1 floor request
+#set_property -dict { PACKAGE_PIN U14   IOSTANDARD LVCMOS33 } [get_ports {led[6]}]  // now used for show 2 floor request
+#set_property -dict { PACKAGE_PIN V14   IOSTANDARD LVCMOS33 } [get_ports {led[7]}]  // now used for show 3 floor request
 #set_property -dict { PACKAGE_PIN V13   IOSTANDARD LVCMOS33 } [get_ports {led[8]}]
 #set_property -dict { PACKAGE_PIN V3    IOSTANDARD LVCMOS33 } [get_ports {led[9]}]
 #set_property -dict { PACKAGE_PIN W3    IOSTANDARD LVCMOS33 } [get_ports {led[10]}]
 #set_property -dict { PACKAGE_PIN U3    IOSTANDARD LVCMOS33 } [get_ports {led[11]}]
 #set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports {led[12]}]
 #set_property -dict { PACKAGE_PIN N3    IOSTANDARD LVCMOS33 } [get_ports {led[13]}]
-#set_property -dict { PACKAGE_PIN P1    IOSTANDARD LVCMOS33 } [get_ports {led[14]}]
-#set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {led[15]}]
+#set_property -dict { PACKAGE_PIN P1    IOSTANDARD LVCMOS33 } [get_ports {led[14]}] // now use for direction led
+#set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {led[15]}] // now use for direction led
 
+## floor request LEDs
+set_property -dict { PACKAGE_PIN U15   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[1]}]
+set_property -dict { PACKAGE_PIN U14   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[2]}]
+set_property -dict { PACKAGE_PIN V14   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[3]}]
 
 ##7 Segment Display
 set_property -dict { PACKAGE_PIN W7   IOSTANDARD LVCMOS33 } [get_ports {seg[0]}]
@@ -84,12 +88,12 @@ set_property -dict { PACKAGE_PIN N1   IOSTANDARD LVCMOS33 } [get_ports {led_btn_
 set_property -dict { PACKAGE_PIN M1   IOSTANDARD LVCMOS33 } [get_ports {led_btn_door[1]}]
 
 # destination selection buttons panel PMOD JA
-set_property -dict { PACKAGE_PIN G2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[1]}]
+set_property -dict { PACKAGE_PIN G2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[3]}]
 set_property -dict { PACKAGE_PIN J2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[2]}]
-set_property -dict { PACKAGE_PIN L2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[3]}]
-set_property -dict { PACKAGE_PIN G3   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[1]}]
+set_property -dict { PACKAGE_PIN L2   IOSTANDARD LVCMOS33 } [get_ports {btn_select_floor[1]}]
+set_property -dict { PACKAGE_PIN G3   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[3]}]
 set_property -dict { PACKAGE_PIN H2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[2]}]
-set_property -dict { PACKAGE_PIN K2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[3]}]
+set_property -dict { PACKAGE_PIN K2   IOSTANDARD LVCMOS33 } [get_ports {led_btn_select_floor[1]}]
 
 # call buttons panel PMOD JB
 # up at 1st and 2nd floor, down at 2th and 3st floor
@@ -114,6 +118,7 @@ set_property -dict { PACKAGE_PIN C16   IOSTANDARD LVCMOS33 } [get_ports {led_btn
 
 ##Buttons
 set_property -dict { PACKAGE_PIN T18   IOSTANDARD LVCMOS33 } [get_ports reset]
+set_property -dict { PACKAGE_PIN U17   IOSTANDARD LVCMOS33 } [get_ports emergency_stop]
 #set_property -dict { PACKAGE_PIN U18   IOSTANDARD LVCMOS33 } [get_ports btnC]
 #set_property -dict { PACKAGE_PIN T18   IOSTANDARD LVCMOS33 } [get_ports btnU]
 #set_property -dict { PACKAGE_PIN W19   IOSTANDARD LVCMOS33 } [get_ports btnL]

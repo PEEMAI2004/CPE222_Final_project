@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 module lift_door (
     input clk, reset,
     input wire door_open_in,
@@ -19,37 +20,28 @@ assign door = door_reg;
 assign door_status = door_status_reg;
 
 always @(posedge clk or posedge reset) begin
-    if (reset) begin
+    if (reset == 1'b1) begin
         counter0 = 0;
         door_reg <= 4'b0000;
         door_status_reg <= 1'b0;
     end else begin
-        if (door_close_in == 1'b1 && sensor == 2'b00) begin
-            counter0 = 32'b0;
+        if(door_open_in == 1'b1 && lift_stage == 2'b00) begin
+            case(current_floor)
+                4'b0001: door_reg <= 4'b0011;
+                4'b0010: door_reg <= 4'b0101;
+                4'b0011: door_reg <= 4'b1001;
+                default: door_reg <= 4'b0000;
+            endcase
+            door_status_reg <= 1'b1;
+        end else if(door_close_in == 1'b1 && sensor == 2'b00) begin
             door_reg <= 4'b0000;
             door_status_reg <= 1'b0;
-        end
-        if (door_open_in == 1'b1 && lift_stage == 2'b00) begin
-            door_status_reg <= 1'b1; 
-            case (current_floor)
-                4'b0001: door_reg <= 4'b0011; // open 1st floor door and car door
-                4'b0010: door_reg <= 4'b0101; // open 2nd floor door and car door
-                4'b0011: door_reg <= 4'b1001; // open 3rd floor door and car door
-            endcase
-            counter0 = 32'b0;
-        end
-        
-        // wait for 5 seconds to close door automatically 
-        // using counter to count clock
-        if (counter0 < 500000000) begin
-            counter0 = counter0 + 1;
-        end else begin
-            door_reg <= 4'b0000; // close all floor door
-            if (sensor == 2'b00) begin
+        end else if(door_status_reg == 1'b1 && sensor == 2'b00) begin
+            counter0 <= counter0 + 1;
+            if(counter0 == 99) begin
+                door_reg <= 4'b0000;
                 door_status_reg <= 1'b0;
-                door_reg <= 4'b0000; // close all floor door
-            end else begin
-                counter0 = 32'b0;
+                counter0 <= 0;
             end
         end
     end

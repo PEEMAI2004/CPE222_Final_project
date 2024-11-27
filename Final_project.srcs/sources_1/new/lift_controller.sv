@@ -1,15 +1,17 @@
 module lift_controller (
-    input clk, reset,
+    input wire clk, reset,
     // I/O
     input [1:0] door_sensor,
     input [1:0] btn_door, btn_call_up_floor, btn_call_down_floor,
     input [3:1] btn_select_floor,
+    input emergency_stop,
     output [1:0] led_btn_door, led_btn_call_up_floor, led_btn_call_down_floor,
     output [3:1] led_btn_select_floor,
+    output reg [3:1] led_floor_request,
     output [1:0] direction_led,
     output [6:0] seg,
     output [3:0] anode,
-    output [3:0] lift_door
+    output reg [3:0] lift_door
 );
 
 // Define states
@@ -18,19 +20,33 @@ typedef enum logic [3:0] {
     MOVING_UP = 4'b0001,
     MOVING_DOWN = 4'b0010,
     DOOR_OPEN = 4'b0011,
-    DOOR_CLOSED = 4'b0100
-    // Add other states as needed
+    DOOR_CLOSED = 4'b0100,
+    EMERGENCY_STOP = 4'b0101
 } state_t;
 
 state_t current_state, next_state;
 
 // Store values for state machine
 reg [3:0] current_floor;
-reg [1:0] lift_stage;
+// reg [1:0] lift_stage;
+reg direction_control_activation;
 reg [1:0] direction;
-// Signal form door
-wire door_status;
-wire [1:0] door_signal;
+reg emergency_stopped;
+reg [32:0] door_timer;
+
+reg [13:0] display_number;
+
+wire [1:0] target_floor;
+wire [1:0] next_direction;
+
+// Floor request register
+wire [3:1] requests;       // lift service 3 floors 1st, 2nd, 3rd
+wire [3:1] request_remove; // remove request from register
+
+// // Signal form door
+// wire door_status;
+// // Signal to door
+// reg [1:0] door_signal;
 // Signal from panel button
 wire [1:0] btn_door_signal, btn_call_up_floor_signal, btn_call_down_floor_signal;
 wire [3:1] btn_select_floor_signal;
@@ -63,24 +79,13 @@ lift_button_panel panels1(
     .btn_select_floor_out(btn_select_floor_signal)
 );
 
-lift_door door1(
+// 7-segment displays
+seven_seg_anode_control display1(
     .clk(clk),
-    .reset(reset),
-    .door_open_in(door_signal[0]),        // door open signal
-    .door_close_in(door_signal[1]),       // door close signal
-    .current_floor(current_floor),       // current floor
-    .lift_stage(lift_stage),          // lift stage output
-    .sensor(door_sensor),   // sensor signal
-    .door(lift_door),       // door signal output
-    .door_status()          // door status output
+    .number(display_number), // Display current floor
+    .seg(seg),
+    .an(anode)
 );
-
-seven_seg_decoder decoder1(
-    .value(current_floor),   
-    .seg(seg)
-);
-
-assign anode = 4'b1110;
 
 direction_display direction1(
     .clk(clk),
@@ -89,12 +94,46 @@ direction_display direction1(
     .led(direction_led)
 );
 
+floor_register register1(
+    .clk(clk),
+    .reset(reset),
+    // Button signals0
+    .btn_call_up_floor_signal(btn_call_up_floor_signal),
+    .btn_call_down_floor_signal(btn_call_down_floor_signal),
+    .btn_select_floor_signal(btn_select_floor_signal),
+    // Signal to remove floor request from register
+    .floor_remove(request_remove),
+    // Register output
+    .floor_request(requests),
+    .floor_request_led(led_floor_request)
+);
+
+// Direction control module
+direction_control direction_control1(
+    .activation(direction_control_activation),
+    .current_floor(current_floor),
+    .current_direction(direction),
+    .next_direction(next_direction),
+    .requests(requests),
+    .request_remove(request_remove),
+    .target_floor(target_floor),
+    // Turn off led on button panel
+    .led_btn_select_floor_off(led_btn_select_floor_off),
+    .led_btn_call_down_floor_off(led_btn_call_down_floor_off),
+    .led_btn_call_up_floor_off(led_btn_call_up_floor_off)
+);
+
 // Initialize state
 initial begin
     current_state = IDLE;
     current_floor = 4'b0001;
-    lift_stage = 2'b00;
+    direction_control_activation = 1'b0;
+    // door_signal = 2'b00;
+    // lift_stage = 2'b00;
     direction = 2'b00;
+    emergency_stopped = 1'b0;
+    door_timer = 32'b0;
+    lift_door <= 4'b0000;
 end
 
 // State transition logic
@@ -102,51 +141,92 @@ always @(posedge clk or posedge reset) begin
     if (reset) begin
         current_state <= IDLE;
         current_floor <= 4'b0001;
-        lift_stage <= 2'b00;
+        // lift_stage <= 2'b00;
+        direction_control_activation <= 1'b0;
         direction <= 2'b00;
+        emergency_stopped <= 1'b0;
+        door_timer <= 32'b0;
+        lift_door <= 4'b0000;
     end else begin
         current_state <= next_state;
     end
 end
 
 // Next state logic
-always @(*) begin
+always @(posedge clk) begin
+    // Emergency stop
+    if (emergency_stop) begin
+        current_state = EMERGENCY_STOP;
+    end
     // Default next state
     next_state = current_state;
 
+    // Displat Number
+    display_number = current_floor + current_state * 10 + next_direction * 100 +  target_floor * 1000; 
     case (current_state)
-        IDLE: begin
-            if (btn_call_up_floor_signal || btn_call_down_floor_signal || btn_select_floor_signal) begin
-                next_state = (direction == 2'b01) ? MOVING_UP : MOVING_DOWN;
+        IDLE: begin // 0
+            door_timer = 32'b0;
+            if (btn_door_signal[0] == 1'b1) begin
+                next_state = DOOR_OPEN; // Open door when stationary
+                // Turn off led on door button, button panel   
+                led_btn_door_off = 2'b11; // Turn signal on
+                #100;
+                led_btn_door_off = 2'b00; // Trun back the signal
+            end else if (requests != 3'b0) begin
+                case (next_direction)
+                    2'b00: next_state = IDLE;        // Stay stationary
+                    2'b01: next_state = MOVING_UP;   // Move up
+                    2'b10: next_state = MOVING_DOWN; // Move down
+                endcase
             end
         end
-        MOVING_UP: begin
-            if (current_floor < 4'b0011) begin // top floor is 3rd 
-                current_floor = current_floor + 1;
-            end
-            if (btn_door_signal) begin
-                next_state = DOOR_OPEN;
+        MOVING_UP: begin // 1
+            direction = 2'b01;
+            // if (current_floor < target_floor) begin // top floor is 3rd
+            //     current_floor = current_floor + 1;
+            // end
+            current_floor <= current_floor + 1;
+            if (current_floor == target_floor) begin
+                next_state = DOOR_OPEN; // Open door when at target floor
             end
         end
-        MOVING_DOWN: begin
-            if (current_floor > 4'b0001) begin // buttom floor is 1st
+        MOVING_DOWN: begin // 2
+            direction = 2'b10;
+            if (current_floor > target_floor) begin // bottom floor is 1st
                 current_floor = current_floor - 1;
             end
-            if (btn_door_signal) begin
-                next_state = DOOR_OPEN;
+            if (current_floor == target_floor) begin
+                next_state = DOOR_OPEN; // Open door when at target floor
             end
         end
-        DOOR_OPEN: begin
-            if (door_sensor == 2'b01) begin
+        DOOR_OPEN: begin // 3
+            case (current_floor)
+                4'b0001: lift_door <= 4'b0011; // 1st floor
+                4'b0010: lift_door <= 4'b0101; // 2nd floor
+                4'b0011: lift_door <= 4'b1001; // 3rd floor
+            endcase
+            // wait for 5 seconds
+            if (door_timer < 10000000) begin
+                door_timer = door_timer + 1;
+                if (btn_door_signal == 2'b10 && door_sensor == 2'b00) begin
+                    next_state = DOOR_CLOSED; // Close door when button is pressed
+                end
+            end else if (door_sensor == 2'b00) begin
+                door_timer = 32'b0;
                 next_state = DOOR_CLOSED;
+            end else begin
+                door_timer = 32'b0;
             end
         end
-        DOOR_CLOSED: begin
-            if (door_sensor == 2'b10) begin
-                next_state = IDLE;
-            end
+        DOOR_CLOSED: begin // 4
+            lift_door = 2'b0000;
+            next_state = IDLE; // Return to idle after door is closed
         end
-        // Add other states and transitions as needed
+        EMERGENCY_STOP: begin // 5
+            emergency_stopped = 1'b1;
+            next_state = IDLE; // Return to idle after emergency stop
+        end
+        default: next_state = IDLE; // Default state
     endcase
 end
 

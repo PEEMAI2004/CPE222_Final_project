@@ -1,60 +1,65 @@
 module seven_seg_anode_control (
-    input clk,             // 100 MHz clock source
-    input [6:0] number,    // 2-digit number (0 to 99)
-    output reg [6:0] seg,  // 7-segment display output
-    output reg [3:0] anode // 4 anode control output
+    input wire clk,           // Clock for multiplexing
+    input [13:0] number,      // 14-bit input for decimal number (0–9999)
+    output reg [6:0] seg,     // 7-segment display cathodes
+    output reg [3:0] an       // 4 anode controls
 );
+    reg [3:0] digit;          // Current digit to display
+    reg [1:0] select = 0;     // 2-bit counter for digit selection
+    reg [19:0] clk_div = 0;   // Clock divider for multiplexing
 
-    // Split the number into tens and ones digits
-    reg [3:0] tens_digit, ones_digit;
-    always @(*) begin
-        tens_digit = number / 10;
-        ones_digit = number % 10;
-    end
+    // Extract each digit using division and modulo
+    wire [3:0] digit_thousands = number / 1000;       // Thousands place
+    wire [3:0] digit_hundreds  = (number / 100) % 10; // Hundreds place
+    wire [3:0] digit_tens      = (number / 10) % 10;  // Tens place
+    wire [3:0] digit_units     = number % 10;         // Units place
 
-    // Refresh rate configuration for anodes (100 Hz)
-    localparam system_frequency = 100_000_000; // 100 MHz
-    localparam clock_counter_max = (system_frequency / 1_000_000) - 1; // 100 Hz refresh rate
-    reg [25:0] clock_counter = 0;
-    reg [1:0] anode_control = 0;
-
-    // Refresh logic for 7-segment multiplexing
+    // Clock divider for multiplexing
     always @(posedge clk) begin
-        if (clock_counter == clock_counter_max) begin
-            clock_counter <= 0;
-            anode_control <= (anode_control == 2'b11) ? 2'b00 : anode_control + 1;
-        end else begin
-            clock_counter <= clock_counter + 1;
-        end
+        clk_div <= clk_div + 1;
     end
 
-    // 7-segment display decoder instances
-    wire [6:0] tens_seg, ones_seg;
-    seven_seg_decoder seg_decoder_tens (
-        .value(tens_digit),
-        .seg(tens_seg)
-    );
-    seven_seg_decoder seg_decoder_ones (
-        .value(ones_digit),
-        .seg(ones_seg)
-    );
+    // Update digit selection based on clock divider
+    always @(posedge clk_div[9]) begin
+        select <= select + 1;
+    end
 
-    // Control the anode signals and segment display based on `anode_control`
+    // Select the digit and activate the corresponding anode
     always @(*) begin
-        case (anode_control)
-            
-            2'b01: begin
-                anode = 4'b1101; // Enable tens place anode
-                seg = tens_seg;
-            end
+        case (select)
             2'b00: begin
-                anode = 4'b1110; // Enable ones place anode
-                seg = ones_seg;
+                digit = digit_units;
+                an = 4'b1110; // Activate anode for units
             end
-            default: begin
-                anode = 4'b1111; // Turn off all anodes
-                seg = 7'b1111111; // Blank segment output
+            2'b01: begin
+                digit = digit_tens;
+                an = 4'b1101; // Activate anode for tens
             end
+            2'b10: begin
+                digit = digit_hundreds;
+                an = 4'b1011; // Activate anode for hundreds
+            end
+            2'b11: begin
+                digit = digit_thousands;
+                an = 4'b0111; // Activate anode for thousands
+            end
+        endcase
+    end
+
+    // 7-segment decoder
+    always @(*) begin
+        case (digit)
+            4'b0000: seg = 7'b1000000; // 0
+            4'b0001: seg = 7'b1111001; // 1
+            4'b0010: seg = 7'b0100100; // 2
+            4'b0011: seg = 7'b0110000; // 3
+            4'b0100: seg = 7'b0011001; // 4
+            4'b0101: seg = 7'b0010010; // 5
+            4'b0110: seg = 7'b0000010; // 6
+            4'b0111: seg = 7'b1111000; // 7
+            4'b1000: seg = 7'b0000000; // 8
+            4'b1001: seg = 7'b0010000; // 9
+            default: seg = 7'b1111111; // Blank
         endcase
     end
 endmodule

@@ -1,14 +1,12 @@
-**** module/scope: button
+**** module/scope: seven_seg_decoder
      Flip-Flops   : 0
-     Logic Gates  : 10
-     MUX[2]: 1 slices
-     LPM[40]: 1 unaccounted
+     Logic Gates  : 0
+     LPM[5]: 1 unaccounted
      LOG[13]: 1 unaccounted
      LOG[14]: 1 unaccounted
 **** TOTALS
      Flip-Flops   : 0
-     Logic Gates  : 10
-     MUX[2]: 1 slices
-     LPM[40]: 1 unaccounted
+     Logic Gates  : 0
+     LPM[5]: 1 unaccounted
      LOG[13]: 1 unaccounted
      LOG[14]: 1 unaccounted
