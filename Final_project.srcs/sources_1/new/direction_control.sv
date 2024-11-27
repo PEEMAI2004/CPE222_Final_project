@@ -82,5 +82,8 @@ module direction_control(
                 end
             end
         end
+        // if (target_floor == 4'b0000) begin
+        //     target_floor = current_floor;
+        // end
     end
 endmodule

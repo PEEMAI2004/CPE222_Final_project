@@ -4,8 +4,8 @@ module lift_controller (
     input [1:0] door_sensor,
     input [1:0] btn_door, btn_call_up_floor, btn_call_down_floor,
     input [3:1] btn_select_floor,
-    input emergency_stop,
-    output [1:0] led_btn_door, led_btn_call_up_floor, led_btn_call_down_floor,
+    input emergency_stop, debug,
+    output wire [1:0] led_btn_door, led_btn_call_up_floor, led_btn_call_down_floor,
     output [3:1] led_btn_select_floor,
     output reg [3:1] led_floor_request,
     output [1:0] direction_led,
@@ -33,6 +33,7 @@ reg direction_control_activation;
 reg [1:0] direction;
 reg emergency_stopped;
 reg [32:0] door_timer;
+reg [32:0] moving_timer;
 
 reg [13:0] display_number;
 
@@ -83,6 +84,7 @@ lift_button_panel panels1(
 seven_seg_anode_control display1(
     .clk(clk),
     .number(display_number), // Display current floor
+    .debug(debug),
     .seg(seg),
     .an(anode)
 );
@@ -137,7 +139,7 @@ initial begin
 end
 
 // State transition logic
-always @(posedge clk or posedge reset) begin
+always @(posedge clk) begin
     if (reset) begin
         current_state <= IDLE;
         current_floor <= 4'b0001;
@@ -150,19 +152,23 @@ always @(posedge clk or posedge reset) begin
     end else begin
         current_state <= next_state;
     end
-end
 
-// Next state logic
-always @(posedge clk) begin
     // Emergency stop
     if (emergency_stop) begin
         current_state = EMERGENCY_STOP;
     end
-    // Default next state
-    next_state = current_state;
 
-    // Displat Number
-    display_number = current_floor + current_state * 10 + next_direction * 100 +  target_floor * 1000; 
+    // Default next state
+    // next_state = current_state;
+    direction = next_direction;
+
+    // Display Number
+    if (debug) begin
+        display_number = current_floor + current_state * 10 + next_direction * 100 +  target_floor * 1000; 
+    end else begin
+        display_number = current_floor;
+    end
+
     case (current_state)
         IDLE: begin // 0
             door_timer = 32'b0;
@@ -172,6 +178,8 @@ always @(posedge clk) begin
                 led_btn_door_off = 2'b11; // Turn signal on
                 #100;
                 led_btn_door_off = 2'b00; // Trun back the signal
+            end else if (request_remove == current_floor) begin // If the button same as current floor is pressed
+                next_state = DOOR_OPEN;
             end else if (requests != 3'b0) begin
                 case (next_direction)
                     2'b00: next_state = IDLE;        // Stay stationary
@@ -182,33 +190,49 @@ always @(posedge clk) begin
         end
         MOVING_UP: begin // 1
             direction = 2'b01;
-            // if (current_floor < target_floor) begin // top floor is 3rd
-            //     current_floor = current_floor + 1;
-            // end
-            current_floor <= current_floor + 1;
+            if (current_floor < target_floor) begin // top floor is 3rd
+                if (moving_timer < 500000000) begin
+                    moving_timer = moving_timer + 1;
+                end else begin
+                    current_floor = current_floor + 1;
+                    moving_timer = 32'b0;
+                end
+            end
+            // current_floor <= current_floor + 1;
             if (current_floor == target_floor) begin
                 next_state = DOOR_OPEN; // Open door when at target floor
             end
         end
         MOVING_DOWN: begin // 2
             direction = 2'b10;
-            if (current_floor > target_floor) begin // bottom floor is 1st
-                current_floor = current_floor - 1;
+            if (current_floor > target_floor && target_floor != 0) begin // bottom floor is 1st
+                if (moving_timer < 500000000) begin
+                    moving_timer = moving_timer + 1;
+                end else begin
+                    current_floor = current_floor - 1;
+                    moving_timer = 32'b0;
+                end
             end
             if (current_floor == target_floor) begin
-                next_state = DOOR_OPEN; // Open door when at target floor
+            next_state = DOOR_OPEN; // Open door when at target floor
             end
         end
         DOOR_OPEN: begin // 3
+            // wait for 1 second before opening the door
+            if (door_timer < 100000000) begin
+            door_timer = door_timer + 1;
+            end else begin
             case (current_floor)
                 4'b0001: lift_door <= 4'b0011; // 1st floor
                 4'b0010: lift_door <= 4'b0101; // 2nd floor
                 4'b0011: lift_door <= 4'b1001; // 3rd floor
             endcase
             // wait for 5 seconds
-            if (door_timer < 10000000) begin
+            if (door_timer < 600000000) begin
                 door_timer = door_timer + 1;
                 if (btn_door_signal == 2'b10 && door_sensor == 2'b00) begin
+                    // Turn off the corresponding led on the door button panel
+                    led_btn_door_off = 2'b11; // Turn signal on
                     next_state = DOOR_CLOSED; // Close door when button is pressed
                 end
             end else if (door_sensor == 2'b00) begin
@@ -218,9 +242,16 @@ always @(posedge clk) begin
                 door_timer = 32'b0;
             end
         end
+        end
         DOOR_CLOSED: begin // 4
-            lift_door = 2'b0000;
-            next_state = IDLE; // Return to idle after door is closed
+            if (door_timer < 100000000) begin
+                door_timer = door_timer + 1;
+            end else begin
+                led_btn_door_off = 2'b11; // Turn signal on
+                lift_door = 4'b0000;
+                door_timer = 32'b0;
+                next_state = IDLE; // Return to idle after door is closed
+            end
         end
         EMERGENCY_STOP: begin // 5
             emergency_stopped = 1'b1;

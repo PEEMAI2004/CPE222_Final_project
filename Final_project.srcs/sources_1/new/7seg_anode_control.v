@@ -1,6 +1,7 @@
 module seven_seg_anode_control (
     input wire clk,           // Clock for multiplexing
     input [13:0] number,      // 14-bit input for decimal number (0–9999)
+    input debug,
     output reg [6:0] seg,     // 7-segment display cathodes
     output reg [3:0] an       // 4 anode controls
 );
@@ -21,29 +22,36 @@ module seven_seg_anode_control (
 
     // Update digit selection based on clock divider
     always @(posedge clk_div[9]) begin
-        select <= select + 1;
+        if (debug != 0) begin
+            select <= select + 1;
+        end
     end
 
     // Select the digit and activate the corresponding anode
     always @(*) begin
-        case (select)
-            2'b00: begin
-                digit = digit_units;
-                an = 4'b1110; // Activate anode for units
-            end
-            2'b01: begin
-                digit = digit_tens;
-                an = 4'b1101; // Activate anode for tens
-            end
-            2'b10: begin
-                digit = digit_hundreds;
-                an = 4'b1011; // Activate anode for hundreds
-            end
-            2'b11: begin
-                digit = digit_thousands;
-                an = 4'b0111; // Activate anode for thousands
-            end
-        endcase
+        if (debug == 0) begin
+            digit = digit_units;
+            an = 4'b1110; // Activate anode for units
+        end else begin
+            case (select)
+                2'b00: begin
+                    digit = digit_units;
+                    an = 4'b1110; // Activate anode for units
+                end
+                2'b01: begin
+                    digit = digit_tens;
+                    an = 4'b1101; // Activate anode for tens
+                end
+                2'b10: begin
+                    digit = digit_hundreds;
+                    an = 4'b1011; // Activate anode for hundreds
+                end
+                2'b11: begin
+                    digit = digit_thousands;
+                    an = 4'b0111; // Activate anode for thousands
+                end
+            endcase
+        end
     end
 
     // 7-segment decoder
