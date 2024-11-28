@@ -5,13 +5,18 @@ module lift_controller (
     input [1:0] btn_door, btn_call_up_floor, btn_call_down_floor,
     input [3:1] btn_select_floor,
     input emergency_stop, debug,
+    // Access control
+    input access_control_display, access_control_bypass,
+    input [7:0] JC,
+    output reg led_access_control_status,
     output wire [1:0] led_btn_door, led_btn_call_up_floor, led_btn_call_down_floor,
     output [3:1] led_btn_select_floor,
     output reg [3:1] led_floor_request,
     output [1:0] direction_led,
     output [6:0] seg,
     output [3:0] anode,
-    output reg [3:0] lift_door
+    output reg [3:0] lift_door,
+    output reg arrival_notification
 );
 
 // Define states
@@ -55,6 +60,25 @@ wire [3:1] btn_select_floor_signal;
 reg [1:0] led_btn_door_off, led_btn_call_up_floor_off, led_btn_call_down_floor_off;
 reg [3:1] led_btn_select_floor_off;
 
+// Access control
+
+wire [6:0] seg_access_control;
+wire [3:0] anode_access_control;
+wire access_control_status;
+wire keypad_status;
+wire reset_access_control;
+
+// Access control module
+Accesscontrol access_control1(
+    .clk(clk),
+    .reset(reset_access_control),
+    .JC(JC),
+    .seg(seg_access_control),
+    .anode(anode_access_control),
+    .accesscontrol(access_control_status),
+    .keypad_status(keypad_status)
+);
+
 // Init modules
 lift_button_panel panels1(
     .reset(reset),
@@ -77,7 +101,11 @@ lift_button_panel panels1(
     .btn_door_out(btn_door_signal),
     .btn_call_up_floor_out(btn_call_up_floor_signal),
     .btn_call_down_floor_out(btn_call_down_floor_signal),
-    .btn_select_floor_out(btn_select_floor_signal)
+    .btn_select_floor_out(btn_select_floor_signal),
+    // Access control
+    .access_control(keypad_status),
+    .access_control_by_pass(access_control_bypass),
+    .reset_access_control(reset_access_control)
 );
 
 // 7-segment displays
@@ -140,6 +168,9 @@ end
 
 // State transition logic
 always @(posedge clk) begin
+
+    led_access_control_status = access_control_status;
+
     if (reset) begin
         current_state <= IDLE;
         current_floor <= 4'b0001;
@@ -218,6 +249,7 @@ always @(posedge clk) begin
             end
         end
         DOOR_OPEN: begin // 3
+            arrival_notification = 1'b1;
             // wait for 1 second before opening the door
             if (door_timer < 100000000) begin
             door_timer = door_timer + 1;
@@ -227,6 +259,7 @@ always @(posedge clk) begin
                 4'b0010: lift_door <= 4'b0101; // 2nd floor
                 4'b0011: lift_door <= 4'b1001; // 3rd floor
             endcase
+            arrival_notification = 1'b0;
             // wait for 5 seconds
             if (door_timer < 600000000) begin
                 door_timer = door_timer + 1;
@@ -247,6 +280,7 @@ always @(posedge clk) begin
             if (door_timer < 100000000) begin
                 door_timer = door_timer + 1;
             end else begin
+                arrival_notification = 1'b0;
                 led_btn_door_off = 2'b11; // Turn signal on
                 lift_door = 4'b0000;
                 door_timer = 32'b0;

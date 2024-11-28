@@ -11,16 +11,20 @@ create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk
 set_property -dict { PACKAGE_PIN W16   IOSTANDARD LVCMOS33 } [get_ports emergency_stop]
 ## Door Sensor
 set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports {door_sensor[0]}]
-set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports {door_sensor[1]}]
+set_property -dict { PACKAGE_PIN K3   IOSTANDARD LVCMOS33 } [get_ports {door_sensor[1]}]
 ## Debug switch
 set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports debug]
+## access control
+set_property -dict { PACKAGE_PIN U1   IOSTANDARD LVCMOS33 } [get_ports access_control_display]
+## access control bypass
+set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports access_control_bypass]
 
 ## Switches
 #set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports {sw[0]}] // now used for door sensor
 #set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports {sw[1]}] // now used for door sensor
 #set_property -dict { PACKAGE_PIN W16   IOSTANDARD LVCMOS33 } [get_ports {sw[2]}] // now used for emergency stop
 #set_property -dict { PACKAGE_PIN W17   IOSTANDARD LVCMOS33 } [get_ports {sw[3]}]
-#set_property -dict { PACKAGE_PIN W15   IOSTANDARD LVCMOS33 } [get_ports {sw[4]}]
+#set_property -dict { PACKAGE_PIN W15   IOSTANDARD LVCMOS33 } [get_ports {sw[4]}] 
 #set_property -dict { PACKAGE_PIN V15   IOSTANDARD LVCMOS33 } [get_ports {sw[5]}]
 #set_property -dict { PACKAGE_PIN W14   IOSTANDARD LVCMOS33 } [get_ports {sw[6]}]
 #set_property -dict { PACKAGE_PIN W13   IOSTANDARD LVCMOS33 } [get_ports {sw[7]}]
@@ -29,9 +33,9 @@ set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports debug]
 #set_property -dict { PACKAGE_PIN T2    IOSTANDARD LVCMOS33 } [get_ports {sw[10]}]
 #set_property -dict { PACKAGE_PIN R3    IOSTANDARD LVCMOS33 } [get_ports {sw[11]}]
 #set_property -dict { PACKAGE_PIN W2    IOSTANDARD LVCMOS33 } [get_ports {sw[12]}]
-#set_property -dict { PACKAGE_PIN U1    IOSTANDARD LVCMOS33 } [get_ports {sw[13]}]
-#set_property -dict { PACKAGE_PIN T1    IOSTANDARD LVCMOS33 } [get_ports {sw[14]}]
-#set_property -dict { PACKAGE_PIN R2    IOSTANDARD LVCMOS33 } [get_ports {sw[15]}] 
+#set_property -dict { PACKAGE_PIN U1    IOSTANDARD LVCMOS33 } [get_ports {sw[13]}] // now use to switch between passowrd or access control screen
+#set_property -dict { PACKAGE_PIN T1    IOSTANDARD LVCMOS33 } [get_ports {sw[14]}] // now used for access control bypass
+#set_property -dict { PACKAGE_PIN R2    IOSTANDARD LVCMOS33 } [get_ports {sw[15]}] // now used for debug 
 
 ## LEDs
 #set_property -dict { PACKAGE_PIN U16   IOSTANDARD LVCMOS33 } [get_ports {led[0]}]  // now used for door
@@ -43,10 +47,10 @@ set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports debug]
 #set_property -dict { PACKAGE_PIN U14   IOSTANDARD LVCMOS33 } [get_ports {led[6]}]  // now used for show 2 floor request
 #set_property -dict { PACKAGE_PIN V14   IOSTANDARD LVCMOS33 } [get_ports {led[7]}]  // now used for show 3 floor request
 #set_property -dict { PACKAGE_PIN V13   IOSTANDARD LVCMOS33 } [get_ports {led[8]}]
-#set_property -dict { PACKAGE_PIN V3    IOSTANDARD LVCMOS33 } [get_ports {led[9]}]
+#set_property -dict { PACKAGE_PIN V3    IOSTANDARD LVCMOS33 } [get_ports {led[9]}] 
 #set_property -dict { PACKAGE_PIN W3    IOSTANDARD LVCMOS33 } [get_ports {led[10]}]
 #set_property -dict { PACKAGE_PIN U3    IOSTANDARD LVCMOS33 } [get_ports {led[11]}]
-#set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports {led[12]}]
+#set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports {led[12]}] // Show access control status
 #set_property -dict { PACKAGE_PIN N3    IOSTANDARD LVCMOS33 } [get_ports {led[13]}]
 #set_property -dict { PACKAGE_PIN P1    IOSTANDARD LVCMOS33 } [get_ports {led[14]}] // now use for direction led
 #set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {led[15]}] // now use for direction led
@@ -55,6 +59,13 @@ set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports debug]
 set_property -dict { PACKAGE_PIN U15   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[1]}]
 set_property -dict { PACKAGE_PIN U14   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[2]}]
 set_property -dict { PACKAGE_PIN V14   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[3]}]
+
+set_property -dict { PACKAGE_PIN V3    IOSTANDARD LVCMOS33 } [get_ports {led_floor_request_remove[1]}]
+set_property -dict { PACKAGE_PIN W3    IOSTANDARD LVCMOS33 } [get_ports {led_floor_request_remove[2]}]
+set_property -dict { PACKAGE_PIN U3    IOSTANDARD LVCMOS33 } [get_ports {led_floor_request_remove[3]}]
+
+#access control status
+set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports {led_access_control_status}]
 
 ##7 Segment Display
 set_property -dict { PACKAGE_PIN W7   IOSTANDARD LVCMOS33 } [get_ports {seg[0]}]
@@ -84,6 +95,7 @@ set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {directi
 ## External Panal
 
 # door open/close buttons panel PMOD JXADC
+set_property -dict { PACKAGE_PIN J3   IOSTANDARD LVCMOS33 } [get_ports arrival_notification]
 set_property -dict { PACKAGE_PIN N2   IOSTANDARD LVCMOS33 } [get_ports {btn_door[0]}]
 set_property -dict { PACKAGE_PIN M2   IOSTANDARD LVCMOS33 } [get_ports {btn_door[1]}]
 set_property -dict { PACKAGE_PIN N1   IOSTANDARD LVCMOS33 } [get_ports {led_btn_door[0]}]
@@ -109,14 +121,14 @@ set_property -dict { PACKAGE_PIN C15   IOSTANDARD LVCMOS33 } [get_ports {led_btn
 set_property -dict { PACKAGE_PIN C16   IOSTANDARD LVCMOS33 } [get_ports {led_btn_call_down_floor[1]}]
 
 # 4 * 4 keypad panel PMOD JC
-# set_property -dict { PACKAGE_PIN A18   IOSTANDARD LVCMOS33 } [get_ports {keypad_row[0]}]
-# set_property -dict { PACKAGE_PIN A19   IOSTANDARD LVCMOS33 } [get_ports {keypad_row[1]}]
-# set_property -dict { PACKAGE_PIN B18   IOSTANDARD LVCMOS33 } [get_ports {keypad_row[2]}]
-# set_property -dict { PACKAGE_PIN B19   IOSTANDARD LVCMOS33 } [get_ports {keypad_row[3]}]
-# set_property -dict { PACKAGE_PIN C18   IOSTANDARD LVCMOS33 } [get_ports {keypad_col[0]}]
-# set_property -dict { PACKAGE_PIN C19   IOSTANDARD LVCMOS33 } [get_ports {keypad_col[1]}]
-# set_property -dict { PACKAGE_PIN D18   IOSTANDARD LVCMOS33 } [get_ports {keypad_col[2]}]
-# set_property -dict { PACKAGE_PIN D19   IOSTANDARD LVCMOS33 } [get_ports {keypad_col[3]}]
+set_property -dict { PACKAGE_PIN K17   IOSTANDARD LVCMOS33 } [get_ports {JC[0]}];
+set_property -dict { PACKAGE_PIN M18   IOSTANDARD LVCMOS33 } [get_ports {JC[1]}];
+set_property -dict { PACKAGE_PIN N17   IOSTANDARD LVCMOS33 } [get_ports {JC[2]}];
+set_property -dict { PACKAGE_PIN P18   IOSTANDARD LVCMOS33 } [get_ports {JC[3]}];
+set_property -dict { PACKAGE_PIN L17   IOSTANDARD LVCMOS33 } [get_ports {JC[4]}];
+set_property -dict { PACKAGE_PIN M19   IOSTANDARD LVCMOS33 } [get_ports {JC[5]}];
+set_property -dict { PACKAGE_PIN P17   IOSTANDARD LVCMOS33 } [get_ports {JC[6]}];
+set_property -dict { PACKAGE_PIN R18   IOSTANDARD LVCMOS33 } [get_ports {JC[7]}];
 
 ##Buttons
 set_property -dict { PACKAGE_PIN T18   IOSTANDARD LVCMOS33 } [get_ports reset]
