@@ -14,10 +14,10 @@ set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports {door_se
 set_property -dict { PACKAGE_PIN K3   IOSTANDARD LVCMOS33 } [get_ports {door_sensor[1]}]
 ## Debug switch
 set_property -dict { PACKAGE_PIN R2   IOSTANDARD LVCMOS33 } [get_ports debug]
-## access control
-set_property -dict { PACKAGE_PIN U1   IOSTANDARD LVCMOS33 } [get_ports access_control_display]
 ## access control bypass
-set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports access_control_bypass]
+set_property -dict { PACKAGE_PIN U1   IOSTANDARD LVCMOS33 } [get_ports access_control_bypass]
+## access control show key
+set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports show_key]
 
 ## Switches
 #set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports {sw[0]}] // now used for door sensor
@@ -51,7 +51,7 @@ set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports access_co
 #set_property -dict { PACKAGE_PIN W3    IOSTANDARD LVCMOS33 } [get_ports {led[10]}]
 #set_property -dict { PACKAGE_PIN U3    IOSTANDARD LVCMOS33 } [get_ports {led[11]}]
 #set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports {led[12]}] // Show access control status
-#set_property -dict { PACKAGE_PIN N3    IOSTANDARD LVCMOS33 } [get_ports {led[13]}]
+#set_property -dict { PACKAGE_PIN N3    IOSTANDARD LVCMOS33 } [get_ports {led[13]}] // Show keypad status
 #set_property -dict { PACKAGE_PIN P1    IOSTANDARD LVCMOS33 } [get_ports {led[14]}] // now use for direction led
 #set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {led[15]}] // now use for direction led
 
@@ -73,6 +73,7 @@ set_property -dict { PACKAGE_PIN U3    IOSTANDARD LVCMOS33 } [get_ports {led_flo
 
 #access control status
 set_property -dict { PACKAGE_PIN P3    IOSTANDARD LVCMOS33 } [get_ports {led_access_control_status}]
+set_property -dict { PACKAGE_PIN N3    IOSTANDARD LVCMOS33 } [get_ports {led_keypad_status}]
 
 ##7 Segment Display
 set_property -dict { PACKAGE_PIN W7   IOSTANDARD LVCMOS33 } [get_ports {seg[0]}]

@@ -4,11 +4,12 @@ module lift_controller (
     input [1:0] door_sensor,
     input [1:0] btn_door, btn_call_up_floor, btn_call_down_floor,
     input [3:1] btn_select_floor,
-    input emergency_stop, debug,
+    input emergency_stop, debug, show_key,
     // Access control
-    input access_control_display, access_control_bypass,
+    input access_control_bypass, 
     input [7:0] JC,
-    output reg led_access_control_status,
+    output led_access_control_status,
+    output reg led_keypad_status,
     output wire [1:0] led_btn_door, led_btn_call_up_floor, led_btn_call_down_floor,
     output [3:1] led_btn_select_floor,
     output reg [3:1] led_floor_request,
@@ -68,6 +69,7 @@ wire [3:0] anode_access_control;
 wire access_control_status;
 wire keypad_status;
 wire reset_access_control;
+wire [3:0] keypad_key;
 
 // Access control module
 Accesscontrol access_control1(
@@ -77,7 +79,8 @@ Accesscontrol access_control1(
     .seg(seg_access_control),
     .anode(anode_access_control),
     .accesscontrol(access_control_status),
-    .keypad_status(keypad_status)
+    .keypad_status(keypad_status),
+    .keypad_key(keypad_key)
 );
 
 // Init modules
@@ -104,8 +107,9 @@ lift_button_panel panels1(
     .btn_call_down_floor_out(btn_call_down_floor_signal),
     .btn_select_floor_out(btn_select_floor_signal),
     // Access control
-    .access_control(keypad_status),
+    .access_control(access_control_status),
     .access_control_by_pass(access_control_bypass),
+    .led_access_control_status(led_access_control_status),
     .reset_access_control(reset_access_control)
 );
 
@@ -169,9 +173,6 @@ end
 
 // State transition logic
 always @(posedge clk) begin
-
-    led_access_control_status = access_control_status;
-
     if (reset) begin
         current_state <= IDLE;
         current_floor <= 4'b0001;
@@ -197,6 +198,8 @@ always @(posedge clk) begin
     // Display Number
     if (debug) begin
         display_number = current_floor + current_state * 10 + next_direction * 100 +  target_floor * 1000; 
+    end else if (show_key) begin
+        display_number = keypad_key;
     end else begin
         display_number = current_floor;
     end
@@ -296,6 +299,7 @@ always @(posedge clk) begin
     endcase
     door_sensor_led_panel = door_sensor;
     direction_led_panel = direction_led;
+    led_keypad_status = keypad_status;
 end
 
 endmodule

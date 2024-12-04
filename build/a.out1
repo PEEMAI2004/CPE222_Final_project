@@ -1,18 +1,14 @@
-**** module/scope: direction_display
-     Flip-Flops   : 27
-     Logic Gates  : 145
-     ADDER[24]: 1 units
-     EQUALITY[24]: 1 units
-     MUX[2]: 24 slices
-     LPM[5]: 1 unaccounted
+**** module/scope: button
+     Flip-Flops   : 0
+     Logic Gates  : 10
+     MUX[2]: 1 slices
+     LPM[40]: 1 unaccounted
      LOG[13]: 1 unaccounted
      LOG[14]: 1 unaccounted
 **** TOTALS
-     Flip-Flops   : 27
-     Logic Gates  : 145
-     ADDER[24]: 1 units
-     EQUALITY[24]: 1 units
-     MUX[2]: 24 slices
-     LPM[5]: 1 unaccounted
+     Flip-Flops   : 0
+     Logic Gates  : 10
+     MUX[2]: 1 slices
+     LPM[40]: 1 unaccounted
      LOG[13]: 1 unaccounted
      LOG[14]: 1 unaccounted

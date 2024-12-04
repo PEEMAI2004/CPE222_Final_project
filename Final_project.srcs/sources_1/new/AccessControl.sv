@@ -5,6 +5,7 @@ module Accesscontrol (
     output wire [6:0] seg,
     output wire [3:0] anode,
     output accesscontrol,
+    output reg [3:0] keypad_key,
     output reg keypad_status
 );
     wire isPressed;
@@ -29,6 +30,7 @@ module Accesscontrol (
         .an(anode)
     );
     always @(*) begin
+        keypad_key = key;
         keypad_status = isPressed;
     end
 

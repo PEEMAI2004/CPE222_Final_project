@@ -15,7 +15,7 @@ module lift_button_panel (
     // Signal outputs
     output wire [1:0] btn_door_out, btn_call_up_floor_out, btn_call_down_floor_out,
     output wire [3:1] btn_select_floor_out,
-    output reg  reset_access_control
+    output reg  reset_access_control, led_access_control_status
 );
 reg access_control_1;
 // Door button
@@ -89,16 +89,18 @@ button btn_select_floor_3 (
 );
 
 always @(*) begin
-    if (reset) begin
-        reset_access_control = 1;
-    end
-    else begin
-        reset_access_control = 0;
-    end
+    // if (reset) begin
+    //     reset_access_control = 1;
+    // end
+    // else begin
+    //     reset_access_control = 0;
+    // end
 
     if (access_control || access_control_by_pass) begin
+        led_access_control_status = 1;
         access_control_1 = btn_call_up_floor[0];
         end else begin
+            led_access_control_status = 0;
             access_control_1 = 1;
         end
 
