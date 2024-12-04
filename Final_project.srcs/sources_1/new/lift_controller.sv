@@ -16,7 +16,8 @@ module lift_controller (
     output [6:0] seg,
     output [3:0] anode,
     output reg [3:0] lift_door,
-    output reg arrival_notification
+    output reg arrival_notification,
+    output reg [1:0] direction_led_panel, door_sensor_led_panel
 );
 
 // Define states
@@ -293,6 +294,8 @@ always @(posedge clk) begin
         end
         default: next_state = IDLE; // Default state
     endcase
+    door_sensor_led_panel = door_sensor;
+    direction_led_panel = direction_led;
 end
 
 endmodule

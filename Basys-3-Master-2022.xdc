@@ -55,6 +55,13 @@ set_property -dict { PACKAGE_PIN T1   IOSTANDARD LVCMOS33 } [get_ports access_co
 #set_property -dict { PACKAGE_PIN P1    IOSTANDARD LVCMOS33 } [get_ports {led[14]}] // now use for direction led
 #set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {led[15]}] // now use for direction led
 
+## external panel LEDs
+set_property -dict { PACKAGE_PIN M3   IOSTANDARD LVCMOS33 } [get_ports {door_sensor_led_panel[0]}]
+set_property -dict { PACKAGE_PIN L3   IOSTANDARD LVCMOS33 } [get_ports {door_sensor_led_panel[1]}]
+set_property -dict { PACKAGE_PIN J1   IOSTANDARD LVCMOS33 } [get_ports {direction_led_panel[0]}]
+set_property -dict { PACKAGE_PIN H1   IOSTANDARD LVCMOS33 } [get_ports {direction_led_panel[1]}]
+
+
 ## floor request LEDs
 set_property -dict { PACKAGE_PIN U15   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[1]}]
 set_property -dict { PACKAGE_PIN U14   IOSTANDARD LVCMOS33 } [get_ports {led_floor_request[2]}]
