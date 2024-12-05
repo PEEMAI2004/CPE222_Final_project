@@ -9,6 +9,8 @@ module lift_button_panel (
     input wire [3:1] btn_select_floor_led_off,
     // Access control
     input wire access_control, access_control_by_pass,
+    // Current current_state
+    input wire [3:0] current_state,
     // Button led
     output wire [1:0] btn_door_led, btn_call_up_floor_led, btn_call_down_floor_led,
     output wire [3:1] btn_select_floor_led,
@@ -103,8 +105,8 @@ always @(*) begin
             led_access_control_status = 0;
             access_control_1 = 1;
         end
-
-    if (~btn_call_up_floor[0]) begin
+    // if current state is 4 door close
+    if (current_state == 4'b0100) begin
         reset_access_control = 1;
     end else begin
         reset_access_control = 0;

@@ -110,7 +110,8 @@ lift_button_panel panels1(
     .access_control(access_control_status),
     .access_control_by_pass(access_control_bypass),
     .led_access_control_status(led_access_control_status),
-    .reset_access_control(reset_access_control)
+    .reset_access_control(reset_access_control),
+    .current_state(current_state)
 );
 
 // 7-segment displays

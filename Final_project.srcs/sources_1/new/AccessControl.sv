@@ -16,7 +16,7 @@ module Accesscontrol (
         .row(JC[3:0]),
         .reset(reset),
         .col(JC[7:4]),
-        .key(key),
+        .key_out(key),
         .isPressed(isPressed)
     );
     
